@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Generator Modul Ajar Kimia SMA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F1; --surface:#FFFFFF; --ink:#12211E; --muted:#4C5F5A; --line:#CBD8D3;
+  --accent:#1B4FD8; --accent-ink:#FFFFFF; --soft:#E3ECF9; --danger:#B3261E;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1715; --surface:#15221F; --ink:#E6F0EC; --muted:#9DB3AC; --line:#2A3C37;
+    --accent:#8FB0FF; --accent-ink:#0B1020; --soft:#1B2A4A; --danger:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1715; --surface:#15221F; --ink:#E6F0EC; --muted:#9DB3AC; --line:#2A3C37;
+  --accent:#8FB0FF; --accent-ink:#0B1020; --soft:#1B2A4A; --danger:#FF8A80; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1320px;margin:0 auto;padding:0 20px 48px}
+header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:24px 0 14px}
+h1.title{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1.1;margin:0 0 6px;letter-spacing:-.01em}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+.btn{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;cursor:pointer;min-height:40px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.small{padding:6px 10px;min-height:34px;font-size:.9rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* skala pH: indikator kelengkapan isian */
+.ph{position:relative;margin:0 0 26px}
+.ph-bar{height:12px;border-radius:6px;background:linear-gradient(90deg,#e5252a,#f26b21,#f7b52c,#f5e84a,#a6d03e,#3fae49,#12a58a,#1b89c9,#3a52b8,#5d3a9b)}
+.ph-marker{position:absolute;top:-6px;left:0;width:4px;height:24px;background:var(--ink);border-radius:2px;transform:translateX(-50%);transition:left .35s ease}
+.ph-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-top:6px}
+
+.layout{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:start}
+@media (max-width:1000px){.layout{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:18px 0 6px}
+fieldset:first-of-type{border-top:0;padding-top:0}
+legend{font-family:var(--display);font-weight:700;font-size:1.2rem;padding:0 0 10px;float:left;width:100%}
+legend+*{clear:both}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field.full{grid-column:1/-1}
+label.l{font-weight:600;font-size:.92rem}
+.hint{font-size:.82rem;color:var(--muted)}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+textarea{resize:vertical;min-height:84px}
+input[readonly]{opacity:.8}
+.invalid{border-color:var(--danger)!important}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:6px 12px}
+.checks label{display:flex;gap:8px;align-items:flex-start;font-size:.93rem;cursor:pointer}
+.checks input{margin-top:4px;accent-color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.status{font-size:.9rem;color:var(--danger);min-height:1.3em;margin-top:8px}
+
+.out{position:sticky;top:12px}
+@media (max-width:1000px){.out{position:static}}
+.out-head{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:10px;border:1px solid var(--line)}
+.tab{font:inherit;font-weight:600;border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:7px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.scroll{max-height:calc(100vh - 150px);overflow:auto;border:1px solid var(--line);border-radius:8px}
+@media (max-width:1000px){.scroll{max-height:none}}
+.empty{padding:36px 22px;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-family:var(--display);font-size:1.15rem;margin-bottom:6px}
+#promptBox{width:100%;min-height:420px;border:0;border-radius:0;font-family:ui-monospace,Consolas,monospace;font-size:.85rem;background:var(--surface);padding:14px}
+details.hist{margin-top:14px}
+details.hist summary{cursor:pointer;font-weight:600}
+.hist-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.hist-list button{text-align:left}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+
+/* kertas dokumen: selalu terang agar siap cetak */
+#doc{background:#fff;color:#000;font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.4;padding:28px 32px}
+#doc h1{font-size:16pt;text-align:center;margin:0 0 2px;font-family:"Times New Roman",Times,serif}
+#doc h2{font-size:13pt;margin:20px 0 6px;font-family:"Times New Roman",Times,serif;border-bottom:1px solid #000;padding-bottom:2px}
+#doc h3{font-size:12pt;margin:12px 0 4px;font-family:"Times New Roman",Times,serif}
+#doc p{margin:4px 0}
+#doc .c{text-align:center}
+#doc ol,#doc ul{margin:4px 0 4px 22px;padding:0}
+#doc table{border-collapse:collapse;width:100%;margin:6px 0}
+#doc td,#doc th{border:1px solid #000;padding:4px 6px;vertical-align:top;text-align:left}
+#doc th{background:#e8e8e8}
+#doc .noborder td{border:0}
+#doc .w1{width:22%}
+#doc .wt{width:70px;text-align:center}
+#doc .note{font-size:10.5pt;font-style:italic}
+
+@media print{
+  body{background:#fff}
+  .wrap > :not(.layout),.layout > .panel:first-child,.out-head,details.hist,.toast{display:none!important}
+  .layout{display:block}
+  .panel{border:0;padding:0}
+  .out{position:static}
+  .scroll{max-height:none;overflow:visible;border:0}
+  #doc{padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1 class="title">Generator Modul Ajar Kimia SMA</h1>
+      <p class="lead">Pilih topik, atur pelaksanaan, lalu hasilkan modul ajar lengkap atau prompt untuk AI. Semua diproses di perangkat Anda, tanpa akun dan tanpa API key.</p>
+    </div>
+    <button class="btn small" id="btnTheme" type="button" aria-label="Ganti tema terang atau gelap">Tema</button>
+  </header>
+
+  <div class="ph" aria-hidden="true">
+    <div class="ph-bar"></div>
+    <div class="ph-marker" id="phMarker"></div>
+    <div class="ph-label"><span>Isian wajib</span><span id="phText">0% terisi</span></div>
+  </div>
+
+  <div class="layout">
+    <!-- FORMULIR -->
+    <section class="panel" aria-label="Formulir">
+      <fieldset>
+        <legend>Identitas</legend>
+        <div class="grid">
+          <div class="field"><label class="l" for="nama">Nama guru *</label><input type="text" id="nama" autocomplete="off"></div>
+          <div class="field"><label class="l" for="nip">NIP / NUPTK</label><input type="text" id="nip" autocomplete="off"></div>
+          <div class="field full"><label class="l" for="sekolah">Satuan pendidikan *</label><input type="text" id="sekolah" placeholder="mis. SMA Negeri 1 ..."></div>
+          <div class="field"><label class="l" for="kepsek">Kepala sekolah</label><input type="text" id="kepsek"></div>
+          <div class="field"><label class="l" for="nipkepsek">NIP kepala sekolah</label><input type="text" id="nipkepsek"></div>
+          <div class="field"><label class="l" for="tapel">Tahun pelajaran *</label><input type="text" id="tapel" value="2026/2027"></div>
+          <div class="field"><label class="l" for="semester">Semester</label>
+            <select id="semester"><option>Ganjil</option><option>Genap</option></select></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Topik dan tujuan</legend>
+        <div class="grid">
+          <div class="field full"><label class="l" for="topik">Topik *</label><select id="topik"></select>
+            <span class="hint">Memilih topik mengisi otomatis capaian, tujuan, dan pertanyaan pemantik. Semuanya tetap bisa Anda ubah.</span></div>
+          <div class="field full" id="boxLain" hidden><label class="l" for="topikLain">Nama topik sendiri</label><input type="text" id="topikLain" placeholder="mis. Kimia Hijau"></div>
+          <div class="field"><label class="l" for="kelas">Kelas</label><select id="kelas"><option>X</option><option>XI</option><option>XII</option></select></div>
+          <div class="field"><label class="l" for="fase">Fase</label><input type="text" id="fase" readonly value="E"></div>
+          <div class="field full"><label class="l" for="cp">Capaian pembelajaran *</label><textarea id="cp" rows="3"></textarea></div>
+          <div class="field full"><label class="l" for="tp">Tujuan pembelajaran * (satu per baris)</label><textarea id="tp" rows="5"></textarea>
+            <span class="hint">Tingkat taksonomi SOLO ada di dalam kurung.</span></div>
+          <div class="field full"><label class="l" for="pm">Pertanyaan pemantik (satu per baris)</label><textarea id="pm" rows="3"></textarea></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pelaksanaan</legend>
+        <div class="grid">
+          <div class="field"><label class="l" for="pertemuan">Jumlah pertemuan</label><input type="number" id="pertemuan" min="1" max="6" value="3"></div>
+          <div class="field"><label class="l" for="jp">Jam pelajaran per pertemuan</label>
+            <select id="jp"><option value="2">2 JP (90 menit)</option><option value="3" selected>3 JP (135 menit)</option><option value="4">4 JP (180 menit)</option></select></div>
+          <div class="field full"><label class="l" for="model">Model pembelajaran</label>
+            <select id="model">
+              <option value="pbl">Problem Based Learning (PBL)</option>
+              <option value="pjbl">Project Based Learning (PjBL)</option>
+              <option value="inq">Inquiry Learning (praktikum terbimbing)</option>
+              <option value="disc">Discovery Learning</option>
+              <option value="coop">Cooperative Learning</option>
+            </select></div>
+          <div class="field full"><label class="l" for="praktik">Bentuk kegiatan praktik</label>
+            <select id="praktik">
+              <option value="lab">Praktikum langsung oleh murid</option>
+              <option value="demo">Demonstrasi oleh guru</option>
+              <option value="sim">Data sekunder atau simulasi virtual (tanpa laboratorium)</option>
+            </select></div>
+          <div class="field full"><label class="l" for="murid">Karakteristik murid</label>
+            <textarea id="murid" rows="2">Murid memiliki gaya belajar beragam; sebagian kuat secara visual dan sebagian membutuhkan scaffolding pada perhitungan kimia.</textarea></div>
+          <div class="field full"><label class="l" for="sarana">Sarana dan prasarana</label>
+            <input type="text" id="sarana" value="Laboratorium kimia atau ruang kelas, proyektor, LKPD, alat dan bahan praktik, gawai atau komputer untuk simulasi"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Isi modul</legend>
+        <div class="field full"><span class="l">Dimensi Profil Lulusan</span>
+          <div class="checks" id="dimBox"></div></div>
+        <div class="field full"><span class="l">Prinsip Pembelajaran Mendalam</span>
+          <div class="checks" id="dlBox"></div></div>
+        <div class="field full"><span class="l">Sertakan di modul</span>
+          <div class="checks" id="incBox"></div></div>
+        <div class="field full"><label class="l" for="catatan">Catatan tambahan (dipakai di prompt AI)</label>
+          <textarea id="catatan" rows="2" placeholder="mis. gunakan contoh dari lingkungan pesisir, sertakan 5 soal HOTS tambahan"></textarea></div>
+      </fieldset>
+
+      <div class="actions">
+        <button class="btn primary" id="btnBuat" type="button">Buat modul ajar</button>
+        <button class="btn" id="btnReset" type="button">Kosongkan isian</button>
+      </div>
+      <div class="status" id="status" role="alert"></div>
+
+      <details class="hist" id="histBox">
+        <summary>Riwayat (<span id="histCount">0</span>)</summary>
+        <div class="hist-list" id="histList"></div>
+      </details>
+    </section>
+
+    <!-- HASIL -->
+    <section class="panel out" aria-label="Hasil">
+      <div class="out-head">
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tabDoc" aria-selected="true" type="button">Modul ajar</button>
+          <button class="tab" role="tab" id="tabPrompt" aria-selected="false" type="button">Prompt untuk AI</button>
+        </div>
+        <div class="tools">
+          <button class="btn small" id="btnCopy" type="button">Salin</button>
+          <button class="btn small" id="btnWord" type="button">Unduh .doc</button>
+          <button class="btn small" id="btnPrint" type="button">Cetak / PDF</button>
+        </div>
+      </div>
+      <div class="scroll" id="paneDoc">
+        <div class="empty" id="empty"><strong>Belum ada hasil</strong>Lengkapi isian wajib di sebelah kiri, lalu pilih “Buat modul ajar”. Hasilnya bisa disalin langsung ke Word.</div>
+        <div id="doc" hidden></div>
+      </div>
+      <div class="scroll" id="panePrompt" hidden>
+        <textarea id="promptBox" readonly aria-label="Prompt untuk AI"></textarea>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ============ DATA TOPIK KIMIA SMA ============ */
+const SOLO = ['Unistruktural','Multistruktural','Relasional','Abstrak Diperluas'];
+const T = [
+{id:'atom',k:'X',n:'Struktur Atom',
+ cp:'Murid mampu menjelaskan perkembangan model atom, menentukan partikel penyusun atom dan konfigurasi elektron, serta menghubungkannya dengan letak unsur dalam sistem periodik.',
+ tp:['Mengidentifikasi partikel penyusun atom (proton, neutron, elektron) beserta muatan dan massanya','Membandingkan model atom Dalton, Thomson, Rutherford, Bohr, dan mekanika kuantum berdasarkan data eksperimen','Menganalisis hubungan konfigurasi elektron dengan letak unsur dan warna nyala logam','Merancang penjelasan ilmiah fenomena kembang api atau lampu neon berdasarkan transisi elektron'],
+ pm:['Mengapa garam yang berbeda memberi warna nyala yang berbeda saat dibakar?','Bagaimana ilmuwan mengetahui isi atom yang tidak terlihat?'],
+ ko:'warna kembang api, lampu neon, dan uji nyala logam',
+ pr:'uji nyala senyawa logam (Na, K, Ca, Cu) dengan kawat nikrom atau lidi kapas',
+ dg:'Sebutkan tiga partikel penyusun atom beserta muatannya.',
+ ht:'Pada uji nyala, garam natrium memberi nyala kuning sedangkan garam kalium memberi nyala ungu. Jelaskan fenomena ini dengan konsep konfigurasi elektron dan transisi elektron, lalu jelaskan mengapa warna nyala dapat dipakai untuk mengidentifikasi unsur.',
+ kj:'Elektron tereksitasi menyerap energi lalu kembali ke tingkat dasar sambil memancarkan cahaya. Selisih tingkat energi tiap unsur khas sehingga panjang gelombang (warna) yang dipancarkan khas pula.',
+ ms:'Elektron dianggap mengorbit inti seperti planet mengelilingi matahari.'},
+{id:'spu',k:'X',n:'Sistem Periodik Unsur',
+ cp:'Murid mampu menganalisis perkembangan sistem periodik dan kecenderungan sifat periodik unsur (jari-jari atom, energi ionisasi, afinitas elektron, keelektronegatifan).',
+ tp:['Menjelaskan dasar pengelompokan unsur dari Dobereiner hingga sistem periodik modern','Menentukan golongan dan periode unsur dari konfigurasi elektronnya','Menganalisis kecenderungan sifat periodik dalam golongan dan periode berdasarkan data','Mengevaluasi pemilihan unsur untuk kebutuhan tertentu berdasarkan sifat periodiknya'],
+ pm:['Mengapa natrium bereaksi hebat dengan air sedangkan magnesium tidak?','Mengapa unsur dalam satu golongan memiliki sifat yang mirip?'],
+ ko:'logam alkali, alkali tanah, dan halogen dalam produk sehari-hari',
+ pr:'perbandingan reaktivitas logam (Mg, Zn, Fe, Cu) terhadap HCl encer',
+ dg:'Apa yang dimaksud dengan golongan dan periode dalam tabel periodik?',
+ ht:'Energi ionisasi pertama Li, Na, dan K menurun dari atas ke bawah dalam satu golongan. Gunakan data tersebut untuk menjelaskan urutan kereaktifan ketiga logam, lalu prediksikan kereaktifan Rb.',
+ kj:'Dari Li ke K jari-jari atom bertambah sehingga elektron valensi makin jauh dari inti dan makin mudah dilepas, maka kereaktifan naik. Rb lebih reaktif daripada K.',
+ ms:'Energi ionisasi besar berarti unsur mudah melepas elektron.'},
+{id:'ikatan',k:'X',n:'Ikatan Kimia dan Bentuk Molekul',
+ cp:'Murid mampu menjelaskan ikatan ion, kovalen, dan logam, gaya antarmolekul, serta bentuk molekul dan hubungannya dengan sifat zat.',
+ tp:['Menggambarkan struktur Lewis dan proses terbentuknya ikatan ion dan kovalen','Menentukan bentuk dan kepolaran molekul dengan teori domain elektron','Menghubungkan jenis ikatan dan gaya antarmolekul dengan titik didih, kelarutan, dan daya hantar listrik','Merekomendasikan material untuk kebutuhan tertentu berdasarkan jenis ikatannya'],
+ pm:['Mengapa minyak tidak larut dalam air?','Mengapa garam dapur menghantarkan listrik saat dilarutkan tetapi gula tidak?'],
+ ko:'kelarutan garam, gula, dan minyak serta sifat air dan es',
+ pr:'uji kelarutan dan daya hantar listrik garam, gula, minyak, dan air suling',
+ dg:'Apa perbedaan ikatan ion dan ikatan kovalen?',
+ ht:'Air (H2O) memiliki titik didih jauh lebih tinggi daripada H2S meskipun massa molekulnya lebih kecil. Jelaskan penyebabnya dan kaitkan dengan peran air bagi kehidupan.',
+ kj:'Antarmolekul air terdapat ikatan hidrogen (O sangat elektronegatif) sehingga dibutuhkan energi lebih besar untuk memisahkannya; H2S tidak membentuk ikatan hidrogen yang berarti.',
+ ms:'Ikatan hidrogen sama kuatnya dengan ikatan kovalen.'},
+{id:'stoik',k:'X',n:'Stoikiometri',
+ cp:'Murid mampu menerapkan hukum dasar kimia, konsep mol, dan perhitungan kimia (rumus empiris dan molekul, pereaksi pembatas, hasil reaksi).',
+ tp:['Menyebutkan bunyi dan contoh penerapan hukum Lavoisier, Proust, Dalton, Gay-Lussac, dan Avogadro','Menghitung jumlah mol, massa, volume gas, dan jumlah partikel suatu zat','Menganalisis pereaksi pembatas dan hasil reaksi dari data percobaan','Mengevaluasi efisiensi suatu proses (mis. kadar pupuk) dan mengusulkan perbaikannya'],
+ pm:['Mengapa massa abu hasil pembakaran kertas lebih kecil daripada massa kertas semula?','Bagaimana menghitung kebutuhan pupuk agar tidak boros?'],
+ ko:'kadar nitrogen pupuk urea dan takaran bahan dalam pembuatan produk',
+ pr:'reaksi NaHCO3 dengan CH3COOH dalam wadah terbuka dan tertutup untuk menguji kekekalan massa',
+ dg:'Apa yang dimaksud dengan satu mol zat?',
+ ht:'Petani memiliki 120 kg urea, CO(NH2)2. Hitung kadar nitrogen dalam urea, lalu tentukan apakah jumlah itu cukup untuk kebutuhan 50 kg nitrogen per hektar pada lahan 2 hektar. (Ar H=1, C=12, N=14, O=16)',
+ kj:'Mr urea = 60; kadar N = 28/60 = 46,7%. N tersedia = 0,467 x 120 = 56 kg, sedangkan kebutuhan = 100 kg, jadi tidak cukup (kurang sekitar 44 kg N).',
+ ms:'Jumlah mol sama dengan massa zat (satuan gram).'},
+{id:'redoks',k:'X',n:'Reaksi Redoks',
+ cp:'Murid mampu menganalisis reaksi reduksi-oksidasi berdasarkan perubahan bilangan oksidasi, penyetaraan reaksi, serta penerapannya pada korosi dan pengolahan limbah.',
+ tp:['Menentukan bilangan oksidasi unsur dalam senyawa dan ion','Mengidentifikasi oksidator dan reduktor serta menyetarakan persamaan reaksi redoks','Menganalisis peristiwa korosi besi dan faktor penyebabnya','Merancang cara pencegahan korosi atau pengolahan limbah berbasis reaksi redoks'],
+ pm:['Mengapa apel yang dipotong berubah cokelat?','Mengapa besi lebih cepat berkarat di daerah pantai?'],
+ ko:'perkaratan besi, apel berubah cokelat, dan pemutih pakaian',
+ pr:'pengamatan paku besi dalam air, air garam, minyak, dan udara kering',
+ dg:'Apa arti oksidasi dan reduksi menurut pelepasan dan penerimaan elektron?',
+ ht:'Seorang nelayan mengeluhkan perahu besinya lebih cepat berkarat dibanding perahu di danau. Analisis penyebabnya dan usulkan dua cara pencegahan beserta alasan kimianya.',
+ kj:'Air laut mengandung elektrolit (NaCl) yang mempercepat perpindahan elektron sehingga korosi lebih cepat. Pencegahan: pengecatan/pelapisan (menutup kontak dengan O2 dan H2O) dan perlindungan katodik dengan logam yang lebih mudah teroksidasi (Zn, Mg).',
+ ms:'Oksidasi selalu berarti reaksi dengan oksigen.'},
+{id:'hidrokarbon',k:'X',n:'Hidrokarbon dan Minyak Bumi',
+ cp:'Murid mampu menjelaskan struktur dan tata nama alkana, alkena, dan alkuna, isomer, sifat senyawa, serta pengolahan minyak bumi dan dampak penggunaannya terhadap lingkungan.',
+ tp:['Menggambar struktur dan memberi nama senyawa alkana, alkena, dan alkuna','Menganalisis hubungan jumlah atom karbon dengan titik didih dan hasil fraksi distilasi minyak bumi','Menjelaskan pembakaran sempurna dan tidak sempurna beserta dampaknya','Mengevaluasi bahan bakar alternatif berdasarkan angka oktan, emisi, dan keberlanjutan'],
+ pm:['Mengapa bahan bakar beroktan lebih tinggi lebih cocok untuk mesin berkompresi tinggi?','Apa yang terjadi pada bahan bakar saat dibakar di dalam mesin?'],
+ ko:'bahan bakar kendaraan, LPG, dan emisi gas buang',
+ pr:'pengamatan pembakaran lilin dan spirtus untuk membedakan pembakaran sempurna dan tidak sempurna (jelaga)',
+ dg:'Sebutkan bahan bakar yang kamu ketahui dan dari mana asalnya.',
+ ht:'Sebuah kota akan memilih bensin beroktan rendah atau tinggi untuk angkutan umum. Susun argumen berbasis konsep hidrokarbon tentang efisiensi mesin dan emisi yang dihasilkan.',
+ kj:'Angka oktan tinggi tahan terhadap knocking sehingga pembakaran lebih terkendali dan efisien serta emisi CO dan hidrokarbon tak terbakar lebih rendah; pertimbangan biaya dan kesesuaian mesin juga perlu dibahas.',
+ ms:'Semua hasil pembakaran bahan bakar fosil hanya berupa CO2 dan H2O.'},
+{id:'termo',k:'XI',n:'Termokimia',
+ cp:'Murid mampu menganalisis perubahan entalpi reaksi dan menentukan nilai ΔH melalui kalorimetri, hukum Hess, dan energi ikatan.',
+ tp:['Membedakan reaksi eksoterm dan endoterm berdasarkan data percobaan','Menghitung ΔH reaksi dengan kalorimeter, hukum Hess, dan energi ikatan','Menganalisis nilai kalor berbagai bahan bakar','Merekomendasikan bahan bakar yang efisien dan ramah lingkungan berdasarkan data'],
+ pm:['Mengapa kantong pemanas instan terasa hangat sedangkan kompres dingin instan terasa dingin?','Bahan bakar mana yang paling hemat energi?'],
+ ko:'kantong hangat dan dingin instan, nilai kalor LPG dan kayu bakar, serta kalori makanan',
+ pr:'kalorimeter sederhana dari gelas stirofoam untuk pelarutan NaOH, pelarutan NH4Cl, dan reaksi netralisasi',
+ dg:'Apa perbedaan sistem dan lingkungan dalam termokimia?',
+ ht:'Anggap nilai kalor LPG 49 kJ/g dan kayu 16 kJ/g. Hitung massa masing-masing yang dibutuhkan untuk menghasilkan 4.900 kJ, lalu pertimbangkan biaya dan emisi dalam memilih bahan bakar rumah tangga.',
+ kj:'LPG = 4.900/49 = 100 g; kayu = 4.900/16 ≈ 306 g. Pertimbangan: LPG lebih efisien per gram dan emisi partikulat lebih rendah, kayu lebih murah tetapi menghasilkan asap dan partikulat.',
+ ms:'Reaksi eksoterm tidak memerlukan energi sama sekali.'},
+{id:'laju',k:'XI',n:'Laju Reaksi',
+ cp:'Murid mampu menganalisis faktor-faktor yang memengaruhi laju reaksi, orde reaksi, dan teori tumbukan.',
+ tp:['Menjelaskan pengertian laju reaksi dan teori tumbukan','Mengidentifikasi pengaruh konsentrasi, suhu, luas permukaan, dan katalis dari data percobaan','Menentukan orde reaksi dan persamaan laju dari data percobaan','Merancang strategi memperlambat pembusukan makanan atau mempercepat proses industri berdasarkan faktor laju'],
+ pm:['Mengapa makanan lebih awet di dalam kulkas?','Mengapa tablet effervescent larut lebih cepat jika digerus?'],
+ ko:'pengawetan makanan, tablet effervescent, dan konverter katalitik kendaraan',
+ pr:'pengaruh suhu air dan luas permukaan (tablet utuh dan digerus) pada tablet effervescent',
+ dg:'Sebutkan hal-hal yang kamu ketahui yang membuat suatu reaksi berlangsung lebih cepat.',
+ ht:'Pada suatu percobaan, ketika [A] dilipatduakan laju menjadi 4 kali, sedangkan ketika [B] dilipatduakan laju tidak berubah. Tentukan orde terhadap A dan B serta persamaan lajunya, lalu jelaskan dengan teori tumbukan mengapa laju meningkat saat konsentrasi naik.',
+ kj:'Orde A = 2, orde B = 0, v = k[A]². Konsentrasi lebih besar berarti partikel lebih rapat sehingga frekuensi tumbukan efektif meningkat.',
+ ms:'Katalis ikut bereaksi lalu habis terpakai.'},
+{id:'setimbang',k:'XI',n:'Kesetimbangan Kimia',
+ cp:'Murid mampu menganalisis kesetimbangan dinamis, tetapan kesetimbangan (Kc dan Kp), pergeseran kesetimbangan, dan penerapannya dalam industri.',
+ tp:['Menjelaskan konsep kesetimbangan dinamis dan ciri-cirinya','Menghitung Kc dan Kp dari data konsentrasi atau tekanan','Menganalisis pergeseran kesetimbangan berdasarkan asas Le Chatelier','Menentukan kondisi optimum proses industri (Haber-Bosch, Kontak) dengan mempertimbangkan aspek ekonomi dan lingkungan'],
+ pm:['Mengapa pembuatan amonia dilakukan pada tekanan tinggi?','Mengapa warna larutan besi(III) tiosianat dapat memudar atau memekat saat ditambah zat tertentu?'],
+ ko:'proses Haber-Bosch untuk pupuk amonia dan proses Kontak untuk asam sulfat',
+ pr:'pergeseran kesetimbangan Fe³⁺ + SCN⁻ ⇌ FeSCN²⁺ dengan penambahan Fe³⁺, SCN⁻, atau pengenceran',
+ dg:'Apa yang dimaksud dengan reaksi reversibel? Berikan satu contoh.',
+ ht:'Pada reaksi N2 + 3H2 ⇌ 2NH3 (ΔH < 0), jelaskan pengaruh kenaikan tekanan dan kenaikan suhu terhadap hasil amonia, lalu jelaskan kondisi kompromi yang dipilih industri beserta alasannya.',
+ kj:'Tekanan naik menggeser ke arah mol gas lebih sedikit (NH3), sehingga hasil naik. Suhu naik menggeser ke arah endoterm (ke kiri), sehingga hasil turun. Industri memakai tekanan tinggi, suhu sedang (±400–500 °C), dan katalis agar laju dan hasil seimbang.',
+ ms:'Pada kesetimbangan reaksi berhenti dan konsentrasi semua zat sama.'},
+{id:'asambasa',k:'XI',n:'Asam dan Basa',
+ cp:'Murid mampu menganalisis teori asam-basa, kekuatan asam dan basa, pH, serta titrasi asam-basa.',
+ tp:['Mengelompokkan zat sebagai asam atau basa berdasarkan teori Arrhenius, Brønsted-Lowry, dan Lewis','Menghitung pH larutan asam dan basa, kuat maupun lemah','Menganalisis data titrasi untuk menentukan konsentrasi larutan','Mengevaluasi kadar asam asetat pada cuka atau kualitas air berdasarkan hasil titrasi dan pH'],
+ pm:['Bagaimana kita mengetahui tingkat keasaman suatu minuman tanpa mencicipinya?','Mengapa sabun terasa licin sedangkan jeruk terasa asam?'],
+ ko:'indikator alami (kol ungu), pH air minum, dan kadar asam cuka',
+ pr:'pembuatan indikator alami dari kol ungu untuk menguji pH larutan rumah tangga, serta titrasi cuka dengan NaOH',
+ dg:'Berikan contoh asam dan basa yang kamu temui sehari-hari.',
+ ht:'Sebanyak 10 mL cuka yang telah diencerkan 10 kali membutuhkan rata-rata 8,5 mL NaOH 0,10 M saat dititrasi. Hitung kadar asam asetat dalam cuka asli (% b/v, Mr CH3COOH = 60) dan bandingkan dengan label 5%.',
+ kj:'mol NaOH = 0,85 mmol = mol asam dalam 10 mL larutan encer, jadi 0,085 M; cuka asli = 0,85 M = 51 g/L ≈ 5,1% b/v, sesuai label 5%.',
+ ms:'Asam kuat sama dengan asam pekat.'},
+{id:'penyangga',k:'XI',n:'Larutan Penyangga',
+ cp:'Murid mampu menjelaskan komposisi, cara kerja, dan pH larutan penyangga serta perannya dalam sistem kehidupan dan industri.',
+ tp:['Mengidentifikasi komponen larutan penyangga asam dan basa','Menghitung pH larutan penyangga sebelum dan sesudah penambahan sedikit asam, basa, atau pengenceran','Menganalisis cara kerja penyangga karbonat dalam darah','Merancang larutan penyangga dengan pH tertentu untuk suatu kebutuhan'],
+ pm:['Mengapa pH darah hampir selalu sekitar 7,4 walaupun kita mengonsumsi makanan asam?','Mengapa obat tetes mata dan sampo mencantumkan keterangan pH seimbang?'],
+ ko:'sistem penyangga darah, obat tetes mata, dan pH akuarium',
+ pr:'perbandingan perubahan pH air, larutan NaCl, dan campuran CH3COOH/CH3COONa saat ditetesi HCl atau NaOH encer',
+ dg:'Mengapa pH air murni mudah berubah ketika ditetesi sedikit asam?',
+ ht:'Seseorang mengalami hiperventilasi sehingga kadar CO2 dalam darahnya turun drastis. Jelaskan dampaknya terhadap kesetimbangan H2CO3/HCO3⁻ dan pH darah.',
+ kj:'CO2 turun sehingga H2CO3 berkurang, kesetimbangan bergeser dan [H⁺] turun, maka pH darah naik (alkalosis respiratorik).',
+ ms:'Larutan penyangga membuat pH sama sekali tidak berubah.'},
+{id:'hidrolisis',k:'XI',n:'Hidrolisis Garam',
+ cp:'Murid mampu menganalisis sifat larutan garam, reaksi hidrolisis, dan pH larutan garam yang terhidrolisis.',
+ tp:['Mengelompokkan garam berdasarkan asam dan basa pembentuknya','Memprediksi sifat larutan garam dan menuliskan reaksi hidrolisisnya','Menghitung pH larutan garam terhidrolisis dari nilai Kh','Menerapkan konsep hidrolisis pada pemilihan bahan (pupuk, soda kue, pengapuran tanah)'],
+ pm:['Mengapa larutan soda kue bersifat basa padahal bukan NaOH?','Mengapa pupuk amonium sulfat dapat mengasamkan tanah?'],
+ ko:'pupuk ZA, soda kue, dan pengasaman tanah pertanian',
+ pr:'uji pH larutan NaCl, NH4Cl, CH3COONa, dan Na2CO3 dengan indikator universal',
+ dg:'Apa hasil reaksi antara asam kuat dan basa kuat?',
+ ht:'Hitung pH larutan CH3COONa 0,1 M (Ka CH3COOH = 1×10⁻⁵) dan jelaskan mengapa larutannya bersifat basa.',
+ kj:'Kh = Kw/Ka = 10⁻⁹; [OH⁻] = √(10⁻⁹ × 0,1) = 10⁻⁵; pOH = 5; pH = 9. Ion CH3COO⁻ menerima H⁺ dari air sehingga menghasilkan OH⁻.',
+ ms:'Semua larutan garam bersifat netral.'},
+{id:'ksp',k:'XI',n:'Kelarutan dan Hasil Kali Kelarutan (Ksp)',
+ cp:'Murid mampu menganalisis kesetimbangan kelarutan, Ksp, dan pengendapan.',
+ tp:['Menuliskan persamaan Ksp berbagai garam sukar larut','Menghitung kelarutan dari Ksp (dan sebaliknya) termasuk pengaruh ion senama','Memprediksi terbentuknya endapan dengan membandingkan Qc dan Ksp','Merancang cara pemisahan atau pengolahan limbah logam berat berdasarkan pengendapan'],
+ pm:['Mengapa kerak kapur terbentuk di dasar panci atau ketel?','Bagaimana limbah logam berat dari industri dapat diendapkan sebelum dibuang?'],
+ ko:'kerak air sadah, stalaktit, dan pengolahan limbah logam berat',
+ pr:'pembentukan endapan CaCO3 dari larutan CaCl2 dan Na2CO3 pada variasi konsentrasi',
+ dg:'Apa yang dimaksud dengan larutan jenuh?',
+ ht:'Ksp Mg(OH)2 = 4×10⁻¹². Hitung kelarutannya dalam air murni, lalu jelaskan mengapa kelarutannya lebih kecil dalam NaOH 0,01 M dan bagaimana prinsip ini dipakai pada pengolahan limbah.',
+ kj:'Ksp = 4s³, s = 1×10⁻⁴ M. Dalam NaOH 0,01 M: s(0,01)² = 4×10⁻¹² sehingga s = 4×10⁻⁸ M. Ion senama OH⁻ menggeser kesetimbangan ke arah endapan, sehingga logam berat dapat diendapkan sebagai hidroksida.',
+ ms:'Kelarutan dan Ksp selalu dapat dibandingkan langsung tanpa melihat jumlah ion.'},
+{id:'koligatif',k:'XII',n:'Sifat Koligatif Larutan',
+ cp:'Murid mampu menganalisis penurunan tekanan uap, kenaikan titik didih, penurunan titik beku, dan tekanan osmotik pada larutan nonelektrolit dan elektrolit.',
+ tp:['Menjelaskan konsep sifat koligatif larutan','Menghitung ΔTb, ΔTf, dan tekanan osmotik, termasuk faktor van\'t Hoff','Menganalisis data titik beku larutan nonelektrolit dan elektrolit','Merekomendasikan zat untuk antibeku, pengawet makanan, dan cairan infus berdasarkan sifat koligatif'],
+ pm:['Mengapa es yang ditaburi garam bisa mencair dan dipakai untuk membuat es krim?','Mengapa air laut lebih sulit membeku daripada air tawar?'],
+ ko:'pembuatan es puter, garam untuk mencairkan es di jalan, dan cairan infus',
+ pr:'pembuatan es krim dengan campuran es-garam dan pengukuran suhu campuran',
+ dg:'Apa yang terjadi pada titik didih air jika gula dilarutkan di dalamnya?',
+ ht:'Sebanyak 18 g glukosa (Mr 180) dan 5,85 g NaCl (Mr 58,5) masing-masing dilarutkan dalam 500 g air. Hitung ΔTf keduanya (Kf air = 1,86 °C/m; i NaCl = 2) dan jelaskan mengapa NaCl lebih efektif sebagai pencair es.',
+ kj:'Glukosa: 0,2 m, ΔTf = 0,372 °C. NaCl: 0,2 m × 2 = 0,4 m, ΔTf = 0,744 °C. NaCl terionisasi menjadi dua partikel sehingga jumlah partikel terlarut dua kali lebih banyak.',
+ ms:'Titik beku larutan lebih tinggi daripada titik beku pelarut murni.'},
+{id:'volta',k:'XII',n:'Sel Volta',
+ cp:'Murid mampu menganalisis sel Volta, potensial sel, dan penerapannya pada baterai dan aki.',
+ tp:['Menjelaskan bagian dan cara kerja sel Volta (anode, katode, jembatan garam)','Menghitung potensial sel berdasarkan data potensial reduksi standar','Menganalisis reaksi pada baterai alkaline, aki, dan sel bahan bakar','Merancang sumber energi alternatif (mis. baterai buah) dan mengevaluasi efisiensinya'],
+ pm:['Bagaimana buah lemon dapat menyalakan LED kecil?','Mengapa aki mobil dapat diisi ulang sedangkan baterai biasa tidak?'],
+ ko:'baterai ponsel, aki kendaraan, dan baterai lemon atau kentang',
+ pr:'sel Volta Zn–Cu sederhana dan baterai lemon atau kentang dengan pengukuran tegangan memakai multimeter',
+ dg:'Apa fungsi baterai pada perangkat elektronik?',
+ ht:'Sel Volta tersusun dari Zn|Zn²⁺ (E° = −0,76 V) dan Cu|Cu²⁺ (E° = +0,34 V). Tentukan anode, katode, reaksi sel, dan E° sel, lalu jelaskan mengapa tegangan sel nyata dapat lebih kecil.',
+ kj:'Anode: Zn; katode: Cu; Zn + Cu²⁺ → Zn²⁺ + Cu; E° sel = 1,10 V. Tegangan nyata lebih kecil karena konsentrasi tidak standar, hambatan dalam, dan polarisasi.',
+ ms:'Elektron mengalir melalui jembatan garam.'},
+{id:'elektrolisis',k:'XII',n:'Elektrolisis dan Korosi',
+ cp:'Murid mampu menganalisis proses elektrolisis, hukum Faraday, penerapannya (penyepuhan, pemurnian logam), serta pencegahan korosi.',
+ tp:['Menentukan reaksi di anode dan katode pada elektrolisis lelehan dan larutan','Menghitung massa zat hasil elektrolisis dengan hukum Faraday','Menganalisis perbedaan sel Volta dan sel elektrolisis','Merancang proses penyepuhan atau pemurnian logam dan perlindungan katodik terhadap korosi'],
+ pm:['Bagaimana cincin tembaga dapat dilapisi perak tanpa dicat?','Mengapa pipa baja bawah tanah dihubungkan dengan batang magnesium?'],
+ ko:'penyepuhan perhiasan, pemurnian tembaga, dan perlindungan katodik pipa',
+ pr:'elektrolisis larutan CuSO4 dengan elektroda karbon atau tembaga dan penyepuhan koin dengan tembaga',
+ dg:'Apa perbedaan reaksi spontan dan tidak spontan?',
+ ht:'Larutan CuSO4 dielektrolisis dengan arus 2 A selama 965 detik. Hitung massa tembaga yang mengendap di katode. (Ar Cu = 63,5; F = 96.500 C/mol)',
+ kj:'Q = 2 × 965 = 1.930 C; mol e⁻ = 0,02; mol Cu = 0,01; massa = 0,635 g.',
+ ms:'Anode selalu bermuatan positif dan katode selalu negatif pada semua jenis sel.'},
+{id:'organik',k:'XII',n:'Senyawa Organik dan Gugus Fungsi',
+ cp:'Murid mampu menganalisis struktur, tata nama, sifat, dan kegunaan senyawa organik berdasarkan gugus fungsinya (alkohol, eter, aldehida, keton, asam karboksilat, ester) serta benzena dan turunannya.',
+ tp:['Mengidentifikasi gugus fungsi dalam senyawa organik','Menentukan tata nama dan isomer senyawa organik','Menghubungkan gugus fungsi dengan sifat fisik, sifat kimia, dan kegunaan senyawa','Mengevaluasi keamanan dan dampak penggunaan senyawa organik dalam produk sehari-hari'],
+ pm:['Mengapa buah-buahan memiliki aroma yang berbeda-beda padahal sama-sama mengandung ester?','Apa perbedaan etanol pada antiseptik dan pada bahan bakar?'],
+ ko:'aroma buah (ester), antiseptik (alkohol), cuka (asam karboksilat), dan bahan pengawet',
+ pr:'uji sifat alkohol (kelarutan dan kemudahan menguap) serta demonstrasi esterifikasi aroma buah oleh guru',
+ dg:'Sebutkan senyawa organik yang kamu gunakan sehari-hari.',
+ ht:'Tuliskan rumus struktur dan nama dua isomer fungsional dari C2H6O, bandingkan titik didih dan kelarutannya dalam air, lalu jelaskan perbedaannya berdasarkan gaya antarmolekul.',
+ kj:'Etanol (CH3CH2OH) dan dimetil eter (CH3OCH3). Etanol berikatan hidrogen antarmolekul sehingga titik didihnya jauh lebih tinggi (±78 °C vs −24 °C) dan larut baik dalam air.',
+ ms:'Senyawa organik hanya berasal dari makhluk hidup.'},
+{id:'polimer',k:'XII',n:'Polimer dan Biomolekul',
+ cp:'Murid mampu menganalisis struktur, sifat, dan penggunaan polimer alam dan sintetis serta biomolekul (karbohidrat, protein, lipid).',
+ tp:['Mengklasifikasikan polimer berdasarkan asal dan reaksi pembentukannya (adisi atau kondensasi)','Mengidentifikasi karbohidrat, protein, dan lipid melalui uji kualitatif','Menghubungkan struktur monomer dengan sifat plastik dan dampaknya terhadap lingkungan','Mengusulkan solusi pengelolaan sampah plastik atau pengembangan bioplastik'],
+ pm:['Mengapa plastik sulit terurai sedangkan kulit pisang cepat membusuk?','Bagaimana kita memeriksa kandungan protein pada makanan?'],
+ ko:'sampah plastik, bioplastik pati, dan kandungan gizi makanan',
+ pr:'pembuatan bioplastik dari pati singkong dan uji makanan (iodin, Benedict, Biuret)',
+ dg:'Sebutkan contoh plastik yang kamu temui sehari-hari dan masalah yang ditimbulkannya.',
+ ht:'Rancang percobaan sederhana untuk membandingkan kekuatan dan daya urai bioplastik pati dengan plastik kresek biasa. Tentukan variabel bebas, terikat, dan kontrol, serta kriteria keberhasilannya.',
+ kj:'Variabel bebas: jenis plastik; terikat: kekuatan tarik (beban maksimum) dan massa tersisa setelah dikubur; kontrol: ukuran, ketebalan, lama penguburan, jenis tanah. Kriteria: bioplastik kehilangan massa lebih besar dengan kekuatan memadai.',
+ ms:'Semua plastik dapat didaur ulang dengan cara yang sama.'},
+{id:'koloid',k:'XII',n:'Sistem Koloid',
+ cp:'Murid mampu membedakan larutan, koloid, dan suspensi, serta menganalisis sifat, pembuatan, dan penerapan sistem koloid.',
+ tp:['Membedakan larutan, koloid, dan suspensi berdasarkan data pengamatan','Mengidentifikasi jenis koloid dan sifatnya (efek Tyndall, gerak Brown, adsorpsi, koagulasi)','Menganalisis peran emulgator dalam pembuatan mayones dan susu','Mengevaluasi pemanfaatan koloid pada penjernihan air dan produk makanan atau kosmetik'],
+ pm:['Mengapa berkas cahaya tampak jelas di ruangan berkabut?','Mengapa mayones tidak memisah padahal tersusun dari minyak dan air?'],
+ ko:'kabut, susu, mayones, dan tawas untuk penjernihan air',
+ pr:'uji efek Tyndall dengan senter pada larutan gula, campuran tepung, dan susu serta pembuatan mayones',
+ dg:'Berikan contoh campuran yang tampak keruh tetapi tidak mengendap.',
+ ht:'Mengapa tawas dapat menjernihkan air keruh? Jelaskan dengan konsep muatan koloid dan koagulasi, serta usulkan cara menguji hasilnya.',
+ kj:'Koloid lempung bermuatan negatif; ion Al³⁺ dari tawas menetralkan muatan sehingga partikel menggumpal (koagulasi) lalu mengendap. Uji: bandingkan kekeruhan dan efek Tyndall sebelum dan sesudah.',
+ ms:'Koloid sama dengan larutan karena tidak mengendap.'}
+];
+
+const DIMENSI = {
+ 'Keimanan dan Ketakwaan terhadap Tuhan YME':'mensyukuri keteraturan alam dan memanfaatkan pengetahuan kimia secara bertanggung jawab',
+ 'Kewargaan':'peduli lingkungan dan menjaga keselamatan bersama saat bekerja dengan bahan kimia',
+ 'Penalaran Kritis':'menganalisis data, menguji klaim, dan menarik simpulan berbasis bukti',
+ 'Kreativitas':'merancang solusi dan produk orisinal dari konsep kimia',
+ 'Kolaborasi':'bekerja sama dalam kelompok praktik dan diskusi',
+ 'Kemandirian':'mengatur strategi belajar dan bertanggung jawab atas tugasnya',
+ 'Kesehatan':'menjaga keselamatan kerja laboratorium serta kesehatan fisik dan mental',
+ 'Komunikasi':'menyajikan data dan gagasan ilmiah secara lisan, tulisan, dan visual'
+};
+const DEFAULT_DIM = ['Penalaran Kritis','Kolaborasi','Komunikasi'];
+const DL = {
+ 'Berkesadaran':'murid menyadari tujuan, proses, dan kemajuan belajarnya melalui refleksi, serta bekerja dengan sadar akan keselamatan.',
+ 'Bermakna':'konsep dikaitkan dengan konteks nyata murid, yaitu {ko}.',
+ 'Menggembirakan':'suasana belajar aman, menantang, dan menyenangkan melalui eksplorasi, praktik, dan kerja tim.'
+};
+const INC = [['lkpd','LKPD (kerangka lembar kerja)'],['soal','Soal diagnostik dan HOTS beserta kunci'],['rubrik','Rubrik penilaian'],['remedial','Remedial dan pengayaan'],['refleksi','Pertanyaan refleksi guru dan murid']];
+const MODELS = {pbl:'Problem Based Learning (PBL)',pjbl:'Project Based Learning (PjBL)',inq:'Inquiry Learning (praktikum terbimbing)',disc:'Discovery Learning',coop:'Cooperative Learning'};
+const PRAKTIK = {lab:'Praktikum langsung oleh murid',demo:'Demonstrasi oleh guru',sim:'Data sekunder atau simulasi virtual'};
+
+/* sintaks model pembelajaran: tiap langkah berisi kegiatan guru (g) dan murid (m) */
+const SINTAKS = {
+ pbl:(t,q)=>[
+  {j:'Orientasi pada masalah',g:`menyajikan fenomena kontekstual (${t.ko}) dan mengajukan pertanyaan pemantik`,m:`mengamati, bertanya, dan merumuskan masalah: “${q}”`},
+  {j:'Mengorganisasi belajar',g:'membentuk kelompok heterogen dan membagikan LKPD',m:'membagi peran (ketua, pencatat, pelaksana, juru bicara) dan menyusun rencana penyelidikan'},
+  {j:'Membimbing penyelidikan',g:'memfasilitasi, memberi scaffolding, dan memastikan keselamatan kerja',m:`mengumpulkan dan menganalisis data melalui ${t.pr}`},
+  {j:'Mengembangkan dan menyajikan hasil',g:'mengarahkan penyusunan laporan, poster, atau infografis',m:'menyusun solusi dan mempresentasikan hasil kelompok'},
+  {j:'Menganalisis dan mengevaluasi',g:'memberi umpan balik dan memperkuat konsep kunci',m:'merefleksikan proses pemecahan masalah dan memperbaiki solusi'}],
+ pjbl:(t,q)=>[
+  {j:'Pertanyaan mendasar',g:`menyajikan ${t.ko} dan pertanyaan pemantik`,m:`mengajukan pertanyaan dan menentukan proyek terkait ${t.n}: “${q}”`},
+  {j:'Mendesain proyek',g:'membimbing perancangan produk atau investigasi',m:'merancang proyek, memilih alat dan bahan'},
+  {j:'Menyusun jadwal',g:'menyepakati tonggak kemajuan dan tenggat',m:'menyusun jadwal dan pembagian tugas'},
+  {j:'Memonitor pelaksanaan proyek',g:'memantau kemajuan dan memberi umpan balik',m:`melaksanakan proyek dan mencatat data (${t.pr})`},
+  {j:'Menguji hasil',g:'memfasilitasi presentasi atau gelar karya',m:'mempresentasikan dan menguji produk atau temuan'},
+  {j:'Mengevaluasi pengalaman',g:'memandu refleksi proses dan hasil',m:'merefleksikan proses dan menyusun rencana perbaikan'}],
+ inq:(t,q)=>[
+  {j:'Orientasi',g:`menyajikan fenomena: ${t.ko}`,m:'mengamati fenomena dan menyatakan rasa ingin tahu'},
+  {j:'Merumuskan masalah',g:`mengajukan pertanyaan “${q}” dan membimbing perumusan masalah`,m:'menuliskan rumusan masalah yang dapat diuji'},
+  {j:'Merumuskan hipotesis',g:'membimbing penyusunan hipotesis dan penentuan variabel',m:'menyusun hipotesis serta variabel bebas, terikat, dan kontrol'},
+  {j:'Mengumpulkan data',g:'mengawasi kegiatan dan memastikan keselamatan kerja',m:`melaksanakan ${t.pr} dan mencatat data dalam tabel`},
+  {j:'Menguji hipotesis',g:'membimbing analisis data',m:'mengolah data (tabel, grafik, perhitungan) dan menguji hipotesis'},
+  {j:'Merumuskan kesimpulan',g:'mengonfirmasi dan memperkuat konsep',m:'menyimpulkan dan mengomunikasikan hasil'}],
+ disc:(t,q)=>[
+  {j:'Stimulasi',g:`menampilkan fenomena: ${t.ko}`,m:'mengamati dan mengajukan pertanyaan'},
+  {j:'Identifikasi masalah',g:'membimbing murid menemukan pertanyaan inti',m:`mengidentifikasi masalah: “${q}”`},
+  {j:'Pengumpulan data',g:'menyediakan bahan, data, dan sumber belajar',m:`mengumpulkan informasi melalui ${t.pr} atau studi literatur`},
+  {j:'Pengolahan data',g:'membimbing pengolahan dan penafsiran data',m:'mengolah dan menafsirkan data'},
+  {j:'Pembuktian',g:'memberi umpan balik',m:'memverifikasi temuan dengan teori dan data'},
+  {j:'Generalisasi',g:'memandu penarikan simpulan',m:'menyimpulkan konsep dan menerapkannya pada kasus baru'}],
+ coop:(t,q)=>[
+  {j:'Menyampaikan tujuan dan motivasi',g:`menyampaikan tujuan dan memotivasi dengan ${t.ko}`,m:'menyimak tujuan dan menyampaikan pengetahuan awal'},
+  {j:'Menyajikan informasi',g:`menyampaikan konsep inti ${t.n} melalui demonstrasi dan visual`,m:'menyimak dan mencatat konsep kunci'},
+  {j:'Mengorganisasi kelompok belajar',g:'membentuk kelompok heterogen dan membagi peran',m:'berkumpul dalam kelompok dan menyepakati aturan kerja'},
+  {j:'Membimbing kerja kelompok',g:'berkeliling memantau dan memberi scaffolding',m:`mengerjakan LKPD dan ${t.pr}, saling mengajar (peer tutoring)`},
+  {j:'Evaluasi dan presentasi',g:'memberi kuis atau meminta presentasi kelompok',m:'mempresentasikan hasil dan menjawab kuis'},
+  {j:'Pemberian penghargaan',g:'memberi apresiasi kepada kelompok dan individu',m:'merefleksikan kontribusi diri dan tim'}]
+};
+
+/* ============ UTIL ============ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lines = s => String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const round5 = x => Math.max(5,Math.round(x/5)*5);
+const split = (arr,n)=>{const out=[];const base=Math.floor(arr.length/n),extra=arr.length%n;let i=0;for(let k=0;k<n;k++){const c=base+(k<extra?1:0);out.push(arr.slice(i,i+c));i+=c;}return out;};
+const ol = arr => '<ol>'+arr.map(x=>`<li>${esc(x)}</li>`).join('')+'</ol>';
+const paras = s => lines(s).map(x=>`<p>${esc(x)}</p>`).join('');
+function toast(msg){const e=$('toast');e.textContent=msg;e.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('show'),2200);}
+
+/* ============ FORM ============ */
+const FIELD_IDS=['nama','nip','sekolah','kepsek','nipkepsek','tapel','semester','topik','topikLain','kelas','fase','cp','tp','pm','pertemuan','jp','model','praktik','murid','sarana','catatan'];
+const REQUIRED=['nama','sekolah','tapel','topik','cp','tp'];
+
+function buildChecks(boxId,name,items,checked){
+  $(boxId).innerHTML=items.map(([v,l])=>`<label><input type="checkbox" name="${name}" value="${esc(v)}" ${checked.includes(v)?'checked':''}><span>${esc(l)}</span></label>`).join('');
+}
+function initForm(){
+  let h='<option value="">Pilih topik</option>';
+  [['X','Kelas X (Fase E)'],['XI','Kelas XI (Fase F)'],['XII','Kelas XII (Fase F)']].forEach(([k,lab])=>{
+    h+=`<optgroup label="${lab}">`+T.filter(t=>t.k===k).map(t=>`<option value="${t.id}">${esc(t.n)}</option>`).join('')+'</optgroup>';
+  });
+  h+='<option value="lain">Topik lain (isi sendiri)</option>';
+  $('topik').innerHTML=h;
+  buildChecks('dimBox','dim',Object.keys(DIMENSI).map(k=>[k,k]),DEFAULT_DIM);
+  buildChecks('dlBox','dl',Object.keys(DL).map(k=>[k,k]),Object.keys(DL));
+  buildChecks('incBox','inc',INC,INC.map(x=>x[0]));
+}
+function faseOf(k){return k==='X'?'E':'F';}
+function applyTopic(){
+  const id=$('topik').value;
+  $('boxLain').hidden = id!=='lain';
+  const t=T.find(x=>x.id===id);
+  if(t){
+    $('kelas').value=t.k; $('fase').value=faseOf(t.k);
+    $('cp').value=t.cp;
+    $('tp').value=t.tp.map((x,i)=>`${x} (${SOLO[i]})`).join('\n');
+    $('pm').value=t.pm.join('\n');
+  }
+  updateProgress();
+}
+function readForm(){
+  const g=id=>$(id).value.trim();
+  const chk=n=>[...document.querySelectorAll(`input[name=${n}]:checked`)].map(x=>x.value);
+  return {nama:g('nama'),nip:g('nip'),sekolah:g('sekolah'),kepsek:g('kepsek'),nipkepsek:g('nipkepsek'),tapel:g('tapel'),semester:g('semester'),
+    topik:g('topik'),topikLain:g('topikLain'),kelas:g('kelas'),fase:g('fase'),cp:g('cp'),tp:lines($('tp').value),pm:lines($('pm').value),
+    pertemuan:Math.min(6,Math.max(1,parseInt($('pertemuan').value,10)||1)),jp:parseInt($('jp').value,10)||3,model:g('model'),praktik:g('praktik'),
+    murid:g('murid'),sarana:g('sarana'),catatan:g('catatan'),dim:chk('dim'),dl:chk('dl'),inc:chk('inc')};
+}
+function getState(){
+  const s={f:{},dim:[],dl:[],inc:[]};
+  FIELD_IDS.forEach(id=>s.f[id]=$(id).value);
+  ['dim','dl','inc'].forEach(n=>s[n]=[...document.querySelectorAll(`input[name=${n}]:checked`)].map(x=>x.value));
+  return s;
+}
+function setState(s){
+  FIELD_IDS.forEach(id=>{if(s.f&&id in s.f)$(id).value=s.f[id];});
+  $('boxLain').hidden=$('topik').value!=='lain';
+  ['dim','dl','inc'].forEach(n=>document.querySelectorAll(`input[name=${n}]`).forEach(x=>x.checked=(s[n]||[]).includes(x.value)));
+  updateProgress();
+}
+function updateProgress(){
+  const f=readForm();
+  const ok=[f.nama,f.sekolah,f.tapel,(f.topik==='lain'?f.topikLain:f.topik),f.cp,f.tp.length?'x':''].filter(Boolean).length;
+  const pct=Math.round(ok/6*100);
+  $('phMarker').style.left=pct+'%';
+  $('phText').textContent=pct+'% terisi';
+}
+function validate(f){
+  document.querySelectorAll('.invalid').forEach(e=>e.classList.remove('invalid'));
+  const miss=[];
+  const chk=(id,cond)=>{if(!cond){miss.push(id);$(id).classList.add('invalid');}};
+  chk('nama',!!f.nama);chk('sekolah',!!f.sekolah);chk('tapel',!!f.tapel);
+  chk('topik',!!f.topik);
+  if(f.topik==='lain')chk('topikLain',!!f.topikLain);
+  chk('cp',!!f.cp);chk('tp',f.tp.length>0);
+  if(miss.length){
+    $('status').textContent='Lengkapi dulu isian bertanda * yang ditandai merah.';
+    $(miss[0]).focus();
+    return false;
+  }
+  $('status').textContent='';
+  return true;
+}
+
+/* ============ PEMBENTUK MODUL ============ */
+function topicData(f){
+  const base = T.find(x=>x.id===f.topik);
+  const t = base ? Object.assign({},base) : {
+    n:f.topikLain||'Topik Kimia',ko:'fenomena kimia di sekitar murid',pr:'kegiatan praktik atau pengamatan yang sesuai dengan topik',
+    dg:`Apa yang kamu ketahui tentang ${f.topikLain||'topik ini'}?`,
+    ht:`Analisis sebuah kasus nyata terkait ${f.topikLain||'topik ini'}, lalu usulkan solusi berbasis konsep kimia yang dipelajari.`,
+    kj:'Susun kunci dan pedoman penskoran sesuai kasus yang dipilih guru.',ms:'Periksa pengetahuan awal murid untuk menemukan miskonsepsi pada topik ini.'};
+  if(f.praktik==='demo') t.pr='demonstrasi guru: '+t.pr;
+  if(f.praktik==='sim') t.pr='analisis data sekunder atau simulasi virtual (misalnya PhET) terkait: '+t.pr;
+  return t;
+}
+function rubrikRows(){
+  return [
+   ['Penalaran dan analisis data','Menganalisis data secara lengkap, menghubungkan antarkonsep, dan menarik simpulan yang tepat disertai bukti','Menganalisis data dengan benar dan menarik simpulan yang sebagian besar tepat','Menganalisis sebagian data; simpulan masih kurang didukung bukti','Belum mampu menganalisis data tanpa bimbingan'],
+   ['Keterampilan proses dan keselamatan kerja','Bekerja sistematis, mencatat data akurat, dan selalu menaati prosedur keselamatan','Bekerja cukup sistematis dan menaati prosedur keselamatan dengan sedikit pengingat','Perlu beberapa kali diarahkan dalam prosedur dan pencatatan data','Perlu bimbingan terus-menerus; sering mengabaikan prosedur keselamatan'],
+   ['Kolaborasi','Aktif berkontribusi, menghargai pendapat, dan membantu kelompok mencapai tujuan','Berkontribusi dan menghargai pendapat teman','Berkontribusi jika diminta','Belum berkontribusi dalam kelompok'],
+   ['Komunikasi hasil','Menyajikan gagasan runtut, jelas, dan menggunakan istilah kimia yang tepat','Menyajikan gagasan cukup runtut dengan istilah yang umumnya tepat','Penyajian kurang runtut dan istilah sering kurang tepat','Penyajian belum dapat dipahami']
+  ];
+}
+function buildDoc(f){
+  const t=topicData(f);
+  const N=f.pertemuan, total=f.jp*45;
+  const q0=f.pm[0]||'Mengapa fenomena ini terjadi dan bagaimana kimia menjelaskannya?';
+  const steps=SINTAKS[f.model](t,q0);
+  const stepParts=split(steps,N).map(a=>a.length?a:[{j:'Penguatan dan latihan soal',g:'memberi latihan soal HOTS dan umpan balik',m:'mengerjakan latihan dan memperbaiki pemahaman'}]);
+  const tpIdx=f.tp.map((_,i)=>i);
+  const tpParts=split(tpIdx,N);
+  let L='A'.charCodeAt(0);
+  const nextL=()=>String.fromCharCode(L++);
+  const has=k=>f.inc.includes(k);
+  const dim=f.dim.length?f.dim:DEFAULT_DIM;
+  const out=[];
+
+  out.push(`<h1>MODUL AJAR KIMIA</h1><p class="c"><b>${esc(t.n)}</b></p><p class="c">Kelas ${esc(f.kelas)} (Fase ${esc(f.fase)}), Semester ${esc(f.semester)}, Tahun Pelajaran ${esc(f.tapel)}</p>`);
+
+  out.push(`<h2>${nextL()}. Identitas Modul</h2><table class="noborder">
+   <tr><td class="w1">Satuan pendidikan</td><td>: ${esc(f.sekolah)}</td></tr>
+   <tr><td>Penyusun</td><td>: ${esc(f.nama)}${f.nip?` (NIP/NUPTK ${esc(f.nip)})`:''}</td></tr>
+   <tr><td>Mata pelajaran</td><td>: Kimia</td></tr>
+   <tr><td>Kelas / Fase</td><td>: ${esc(f.kelas)} / ${esc(f.fase)}</td></tr>
+   <tr><td>Topik</td><td>: ${esc(t.n)}</td></tr>
+   <tr><td>Alokasi waktu</td><td>: ${N} pertemuan x ${f.jp} JP (${total} menit per pertemuan)</td></tr>
+   <tr><td>Model pembelajaran</td><td>: ${esc(MODELS[f.model])}</td></tr>
+   <tr><td>Bentuk kegiatan praktik</td><td>: ${esc(PRAKTIK[f.praktik])}</td></tr></table>`);
+
+  out.push(`<h2>${nextL()}. Komponen Inti</h2>
+   <h3>1. Capaian Pembelajaran</h3>${paras(f.cp)}
+   <h3>2. Tujuan Pembelajaran</h3>${ol(f.tp)}
+   <h3>3. Dimensi Profil Lulusan yang Dikuatkan</h3><ul>${dim.map(d=>`<li><b>${esc(d)}</b>: ${esc(DIMENSI[d]||'')}</li>`).join('')}</ul>`);
+  if(f.dl.length){
+    out.push(`<h3>4. Prinsip Pembelajaran Mendalam</h3><table><tr><th class="w1">Prinsip</th><th>Wujud dalam pembelajaran</th></tr>${f.dl.map(d=>`<tr><td>${esc(d)}</td><td>${esc((DL[d]||'').replace('{ko}',t.ko))}</td></tr>`).join('')}</table>`);
+  }
+  out.push(`<h3>5. Pemahaman Bermakna</h3><p>Murid memahami bahwa konsep ${esc(t.n)} menjelaskan fenomena di sekitarnya, yaitu ${esc(t.ko)}, dan dapat dipakai untuk mengambil keputusan berbasis data.</p>
+   <h3>6. Pertanyaan Pemantik</h3>${f.pm.length?ol(f.pm):'<p>-</p>'}
+   <h3>7. Karakteristik Murid</h3>${paras(f.murid)||'<p>-</p>'}
+   <h3>8. Sarana dan Prasarana</h3>${paras(f.sarana)||'<p>-</p>'}`);
+  if(f.praktik==='lab') out.push(`<p class="note">Keselamatan kerja: murid memakai jas laboratorium, kacamata pelindung, dan sarung tangan; bahan kimia tidak dicicipi atau dicium langsung; limbah dikumpulkan sesuai arahan guru.</p>`);
+  out.push(`<h3>9. Potensi Miskonsepsi yang Perlu Diantisipasi</h3><p>${esc(t.ms)}</p>`);
+
+  out.push(`<h2>${nextL()}. Langkah-Langkah Pembelajaran</h2><p class="note">Setiap pertemuan mengikuti alur memahami, mengaplikasi, dan merefleksi. Pembagian waktu dapat disesuaikan di kelas.</p>`);
+  for(let i=0;i<N;i++){
+    const pend=round5(total*0.15), pen=round5(total*0.15);
+    const sp=stepParts[i];
+    const inti=Math.max(5,total-pend-pen);
+    const per=round5(inti/sp.length);
+    const tps=tpParts[i].map(x=>'TP '+(x+1)).join(', ');
+    const first=i===0, last=i===N-1;
+    const pendText=first
+      ? `Guru membuka kelas, mengecek kehadiran, dan menyampaikan tujuan pembelajaran. Murid mengerjakan asesmen diagnostik: “${esc(t.dg)}” lalu menanggapi pertanyaan pemantik: “${esc(q0)}”.`
+      : `Guru membuka kelas, mengecek kehadiran, dan mengulas pertemuan sebelumnya. Murid menyampaikan kembali konsep yang telah dipelajari dan menyimak tujuan hari ini.`;
+    const penText=`Murid dan guru menyimpulkan pembelajaran, murid mengisi refleksi singkat (apa yang sudah saya pahami, apa yang masih membingungkan), dan guru menyampaikan rencana pertemuan berikutnya.${last?' Murid mengerjakan asesmen sumatif.':''}`;
+    out.push(`<h3>Pertemuan ${i+1}${tps?` (mencapai ${tps})`:''}</h3><table><tr><th class="w1">Tahap</th><th>Kegiatan guru dan murid</th><th class="wt">Waktu</th></tr>
+      <tr><td>Pendahuluan</td><td>${pendText}</td><td class="wt">${pend} menit</td></tr>
+      ${sp.map(s=>`<tr><td>${esc(s.j)}</td><td><b>Guru:</b> ${esc(s.g)}.<br><b>Murid:</b> ${esc(s.m)}.</td><td class="wt">${per} menit</td></tr>`).join('')}
+      <tr><td>Penutup</td><td>${penText}</td><td class="wt">${pen} menit</td></tr></table>`);
+  }
+
+  out.push(`<h2>${nextL()}. Asesmen</h2>
+   <ul><li><b>Asesmen diagnostik</b> (awal pertemuan 1): pertanyaan prasyarat dan kuesioner singkat gaya belajar. Murid yang belum tepat menjawab diberi penguatan konsep prasyarat.</li>
+   <li><b>Asesmen formatif</b> (sepanjang pembelajaran): observasi keterampilan proses dan kolaborasi, LKPD, presentasi kelompok, serta tiket keluar (exit ticket) di akhir pertemuan.</li>
+   <li><b>Asesmen sumatif</b> (akhir pertemuan terakhir): tes tertulis soal HOTS dan laporan atau produk kelompok.</li></ul>`);
+  if(has('rubrik')){
+    out.push(`<h3>Rubrik Penilaian</h3><table><tr><th>Aspek</th><th>Sangat Baik (4)</th><th>Baik (3)</th><th>Cukup (2)</th><th>Perlu Bimbingan (1)</th></tr>${rubrikRows().map(r=>'<tr>'+r.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>').join('')}</table>
+    <p class="note">Nilai akhir = (jumlah skor yang diperoleh / skor maksimum) x 100.</p>`);
+  }
+  if(has('remedial')){
+    out.push(`<h2>${nextL()}. Pengayaan dan Remedial</h2>
+     <p><b>Remedial:</b> pembelajaran ulang dalam kelompok kecil dengan media visual dan analogi, tutor sebaya, serta latihan terbimbing, terutama untuk meluruskan miskonsepsi: “${esc(t.ms)}”.</p>
+     <p><b>Pengayaan:</b> studi kasus atau proyek mini lanjutan, misalnya menganalisis ${esc(t.ko)} dengan data nyata dan menyajikannya dalam infografis.</p>`);
+  }
+  if(has('refleksi')){
+    out.push(`<h2>${nextL()}. Refleksi</h2>
+     <p><b>Refleksi murid:</b></p><ul><li>Konsep apa yang paling saya pahami hari ini?</li><li>Bagian mana yang masih sulit dan apa yang akan saya lakukan?</li><li>Di mana saya dapat menerapkan konsep ini dalam kehidupan sehari-hari?</li></ul>
+     <p><b>Refleksi guru:</b></p><ul><li>Apakah tujuan pembelajaran tercapai pada sebagian besar murid?</li><li>Kegiatan mana yang paling efektif dan mana yang perlu diperbaiki?</li><li>Murid mana yang membutuhkan tindak lanjut khusus?</li></ul>`);
+  }
+  if(has('lkpd')||has('soal')){
+    out.push(`<h2>${nextL()}. Lampiran</h2>`);
+    if(has('lkpd')){
+      out.push(`<h3>Lampiran 1. Kerangka LKPD</h3><ol>
+       <li>Judul dan identitas kelompok</li><li>Rumusan masalah: “${esc(q0)}”</li><li>Hipotesis</li><li>Variabel bebas, terikat, dan kontrol</li>
+       <li>Alat, bahan, dan catatan keselamatan kerja</li><li>Prosedur: ${esc(t.pr)}</li><li>Tabel data pengamatan</li>
+       <li>Analisis data (pertanyaan pemandu: pola apa yang terlihat, bagaimana hubungannya dengan konsep, apa yang menjelaskan hasil ini)</li><li>Kesimpulan</li><li>Refleksi kelompok</li></ol>`);
+    }
+    if(has('soal')){
+      out.push(`<h3>Lampiran 2. Contoh Soal</h3>
+       <p><b>Soal diagnostik:</b> ${esc(t.dg)}</p>
+       <p><b>Soal HOTS:</b> ${esc(t.ht)}</p>
+       <p><b>Kunci / pedoman jawaban:</b> ${esc(t.kj)}</p>
+       <p class="note">Periksa kembali kunci jawaban dan sesuaikan angka atau data dengan buku acuan yang Anda gunakan sebelum dipakai di kelas.</p>`);
+    }
+  }
+  out.push(`<table class="noborder" style="margin-top:28px"><tr>
+    <td style="width:50%">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u>${esc(f.kepsek||'..............................')}</u><br>${f.nipkepsek?'NIP. '+esc(f.nipkepsek):'NIP. ..............................'}</td>
+    <td>.............., ..............................<br>Guru Mata Pelajaran<br><br><br><br><u>${esc(f.nama)}</u><br>${f.nip?'NIP. '+esc(f.nip):'NIP. ..............................'}</td></tr></table>`);
+  return out.join('\n');
+}
+function buildPrompt(f){
+  const t=topicData(f);
+  const N=f.pertemuan,total=f.jp*45;
+  const L=[];
+  L.push('Bertindaklah sebagai guru Kimia SMA berpengalaman sekaligus perancang pembelajaran Kurikulum Merdeka berbasis Pembelajaran Mendalam. Susun MODUL AJAR yang lengkap, siap pakai, dan akurat secara ilmiah berdasarkan data berikut.');
+  L.push('');
+  L.push('IDENTITAS');
+  L.push(`- Satuan pendidikan: ${f.sekolah}`);
+  L.push(`- Penyusun: ${f.nama}${f.nip?' (NIP/NUPTK '+f.nip+')':''}`);
+  L.push(`- Mata pelajaran: Kimia, Kelas ${f.kelas}, Fase ${f.fase}, Semester ${f.semester}, Tahun Pelajaran ${f.tapel}`);
+  L.push(`- Topik: ${t.n}`);
+  L.push(`- Alokasi waktu: ${N} pertemuan x ${f.jp} JP (${total} menit per pertemuan)`);
+  L.push(`- Model pembelajaran: ${MODELS[f.model]}`);
+  L.push(`- Bentuk kegiatan praktik: ${PRAKTIK[f.praktik]}`);
+  L.push('');
+  L.push('CAPAIAN PEMBELAJARAN'); L.push(f.cp);
+  L.push('');
+  L.push('TUJUAN PEMBELAJARAN (dengan tingkat taksonomi SOLO)');
+  f.tp.forEach((x,i)=>L.push(`${i+1}. ${x}`));
+  L.push('');
+  if(f.pm.length){L.push('PERTANYAAN PEMANTIK');f.pm.forEach((x,i)=>L.push(`${i+1}. ${x}`));L.push('');}
+  L.push('KONTEKS DAN KARAKTERISTIK');
+  L.push(`- Konteks nyata yang dipakai: ${t.ko}`);
+  L.push(`- Kegiatan praktik yang diusulkan: ${t.pr}`);
+  L.push(`- Karakteristik murid: ${f.murid||'-'}`);
+  L.push(`- Sarana dan prasarana: ${f.sarana||'-'}`);
+  L.push(`- Miskonsepsi yang perlu diantisipasi: ${t.ms}`);
+  L.push(`- Dimensi Profil Lulusan: ${(f.dim.length?f.dim:DEFAULT_DIM).join(', ')}`);
+  if(f.dl.length) L.push(`- Prinsip Pembelajaran Mendalam yang harus tampak: ${f.dl.join(', ')}`);
+  L.push('');
+  L.push('KOMPONEN YANG HARUS ADA');
+  L.push('1. Identitas modul; 2. Komponen inti (CP, TP, profil lulusan, pemahaman bermakna, pertanyaan pemantik, karakteristik murid, sarana);');
+  L.push('3. Langkah pembelajaran per pertemuan dalam tabel (tahap, kegiatan guru dan murid, alokasi waktu) yang jumlah menitnya sesuai total waktu;');
+  L.push('4. Asesmen diagnostik, formatif, dan sumatif;');
+  if(f.inc.includes('rubrik')) L.push('5. Rubrik penilaian analitik 4 level untuk penalaran, keterampilan proses, kolaborasi, dan komunikasi;');
+  if(f.inc.includes('remedial')) L.push('6. Program remedial dan pengayaan;');
+  if(f.inc.includes('refleksi')) L.push('7. Pertanyaan refleksi guru dan murid;');
+  if(f.inc.includes('lkpd')) L.push('8. LKPD lengkap (rumusan masalah, hipotesis, variabel, alat dan bahan, prosedur, tabel data, pertanyaan analisis, kesimpulan);');
+  if(f.inc.includes('soal')) L.push('9. Soal diagnostik dan 5 soal HOTS (campuran pilihan ganda dan uraian) beserta kunci, pembahasan langkah demi langkah, dan pedoman penskoran.');
+  L.push('');
+  L.push('KETENTUAN');
+  L.push('- Gunakan bahasa Indonesia baku, ringkas, dan operasional.');
+  L.push('- Semua perhitungan dan konsep kimia harus benar; periksa ulang angka, satuan, dan persamaan reaksi sebelum menuliskannya.');
+  L.push('- Jangan mengarang data atau sumber; bila perlu data, nyatakan sebagai data ilustrasi.');
+  L.push('- Cantumkan prosedur keselamatan kerja untuk setiap kegiatan praktik dan gunakan bahan yang aman serta mudah diperoleh di sekolah.');
+  L.push('- Sajikan dalam format yang rapi (judul, subjudul, tabel) sehingga mudah disalin ke Word.');
+  if(f.catatan){L.push('- Catatan tambahan dari guru: '+f.catatan);}
+  return L.join('\n');
+}
+
+/* ============ TAMPILAN HASIL ============ */
+let lastTitle='Modul-Ajar-Kimia';
+function showTab(which){
+  const isDoc=which==='doc';
+  $('tabDoc').setAttribute('aria-selected',isDoc);
+  $('tabPrompt').setAttribute('aria-selected',!isDoc);
+  $('paneDoc').hidden=!isDoc; $('panePrompt').hidden=isDoc;
+}
+function generate(){
+  const f=readForm();
+  if(!validate(f))return;
+  $('doc').innerHTML=buildDoc(f);
+  $('doc').hidden=false; $('empty').hidden=true;
+  $('promptBox').value=buildPrompt(f);
+  const t=topicData(f);
+  lastTitle='Modul-Ajar-Kimia-'+t.n.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  showTab('doc');
+  saveHistory(t.n,f);
+  $('paneDoc').scrollTop=0;
+  toast('Modul ajar siap');
+}
+
+/* ============ SALIN, UNDUH, CETAK ============ */
+function copyText(text){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text).then(()=>true).catch(()=>fallbackCopy(text));
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(e){}ta.remove();return ok;
+}
+function copyDocRich(){
+  const node=$('doc');
+  const sel=window.getSelection();const r=document.createRange();r.selectNodeContents(node);sel.removeAllRanges();sel.addRange(r);
+  let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  sel.removeAllRanges();
+  return ok;
+}
+function doCopy(){
+  if(!$('panePrompt').hidden){
+    if(!$('promptBox').value){toast('Buat dulu hasilnya');return;}
+    copyText($('promptBox').value).then(ok=>toast(ok?'Prompt disalin':'Gagal menyalin, blok teks lalu salin manual'));
+  }else{
+    if($('doc').hidden){toast('Buat dulu hasilnya');return;}
+    toast(copyDocRich()?'Disalin, tempel di Word':'Gagal menyalin, blok teks lalu salin manual');
+  }
+}
+const DOC_CSS="body{font-family:'Times New Roman',serif;font-size:12pt}h1{font-size:16pt;text-align:center}h2{font-size:13pt;border-bottom:1px solid #000}h3{font-size:12pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #000;padding:4px 6px;vertical-align:top}th{background:#e8e8e8}.noborder td{border:0}.c{text-align:center}.note{font-size:10.5pt;font-style:italic}";
+function saveBlob(blob,name){
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+function doWord(){
+  if($('doc').hidden){toast('Buat dulu hasilnya');return;}
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Modul Ajar Kimia</title><style>${DOC_CSS}</style></head><body>${$('doc').innerHTML}</body></html>`;
+  saveBlob(new Blob(['\ufeff',html],{type:'application/msword'}),lastTitle+'.doc');
+  toast('Mengunduh .doc');
+}
+function doPrint(){
+  if($('doc').hidden){toast('Buat dulu hasilnya');return;}
+  showTab('doc');window.print();
+}
+
+/* ============ RIWAYAT ============ */
+const HKEY='modul-kimia-riwayat';
+function loadHistory(){try{return JSON.parse(localStorage.getItem(HKEY)||'[]');}catch(e){return [];}}
+function saveHistory(title,f){
+  const list=loadHistory();
+  list.unshift({id:Date.now(),title,when:new Date().toLocaleString('id-ID'),state:getState()});
+  try{localStorage.setItem(HKEY,JSON.stringify(list.slice(0,10)));}catch(e){}
+  renderHistory();
+}
+function renderHistory(){
+  const list=loadHistory();
+  $('histCount').textContent=list.length;
+  const box=$('histList');
+  box.innerHTML=list.length?'':'<span class="hint">Belum ada riwayat. Setiap modul yang Anda buat tersimpan di browser ini.</span>';
+  list.forEach(item=>{
+    const b=document.createElement('button');b.type='button';b.className='btn small';
+    b.textContent=`${item.title} (${item.when})`;
+    b.addEventListener('click',()=>{setState(item.state);generate();});
+    box.appendChild(b);
+  });
+}
+
+/* ============ TEMA & INISIALISASI ============ */
+function toggleTheme(){
+  const root=document.documentElement;
+  const cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  root.setAttribute('data-theme',cur==='dark'?'light':'dark');
+}
+function resetForm(){
+  FIELD_IDS.forEach(id=>{const e=$(id);if(e.tagName==='SELECT')e.selectedIndex=0;else if(!['tapel','murid','sarana','pertemuan'].includes(id))e.value='';});
+  $('fase').value='E';$('boxLain').hidden=true;
+  document.querySelectorAll('.invalid').forEach(e=>e.classList.remove('invalid'));
+  $('status').textContent='';
+  updateProgress();
+}
+initForm();
+renderHistory();
+updateProgress();
+$('topik').addEventListener('change',applyTopic);
+$('kelas').addEventListener('change',()=>{$('fase').value=faseOf($('kelas').value);});
+document.querySelectorAll('input,textarea,select').forEach(e=>e.addEventListener('input',updateProgress));
+$('btnBuat').addEventListener('click',generate);
+$('btnReset').addEventListener('click',resetForm);
+$('btnCopy').addEventListener('click',doCopy);
+$('btnWord').addEventListener('click',doWord);
+$('btnPrint').addEventListener('click',doPrint);
+$('btnTheme').addEventListener('click',toggleTheme);
+$('tabDoc').addEventListener('click',()=>showTab('doc'));
+$('tabPrompt').addEventListener('click',()=>showTab('prompt'));
+</script>
+</body>
+</html>
